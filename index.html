@@ -190,21 +190,44 @@
     let startTime = null;
     const VOLTAGE = 220.5;
 
-    // --- FUNGSI BARU: PREVIEW IMAGE ---
+    // --- FUNGSI DIPERBAIKI: PREVIEW & SIMPAN KE LOCALSTORAGE ---
     function previewFile() {
         const preview = document.getElementById('displayImg');
         const file = document.getElementById('localImg').files[0];
         const reader = new FileReader();
 
         reader.onloadend = function () {
-            preview.src = reader.result;
+            const base64String = reader.result;
+            preview.src = base64String;
+            // Menyimpan string gambar ke browser (LocalStorage)
+            localStorage.setItem('savedRudiImg', base64String);
         }
 
         if (file) {
             reader.readAsDataURL(file);
-        } else {
-            preview.src = "https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=800&q=80";
         }
+    }
+
+    // --- FUNGSI LOAD DATA SAAT BUKA HALAMAN ---
+    function loadPersistedData() {
+        // Load Gambar
+        const savedImg = localStorage.getItem('savedRudiImg');
+        if (savedImg) {
+            document.getElementById('displayImg').src = savedImg;
+        }
+
+        // Load Judul (Title)
+        const savedTitle = localStorage.getItem('savedRudiTitle');
+        if (savedTitle) {
+            document.querySelector('#mainTitle span').innerText = savedTitle;
+            document.getElementById('titleInput').value = savedTitle;
+        }
+    }
+
+    function updateTitle(val) { 
+        const title = val || "POWER & IOT SYSTEM";
+        document.querySelector('#mainTitle span').innerText = title; 
+        localStorage.setItem('savedRudiTitle', title); // Auto-save title
     }
 
     function updateClock() {
@@ -299,10 +322,6 @@
         document.getElementById('disp_curr').innerHTML = `${(currentWatt / VOLTAGE).toFixed(2)} <span class="energy-unit">A</span>`;
     }
 
-    function updateTitle(val) { 
-        document.querySelector('#mainTitle span').innerText = val || "POWER & IOT SYSTEM"; 
-    }
-
     function openPage(id, e) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -316,10 +335,14 @@
     }
 
     function saveAllSettings() { 
-        alert("Sistem Berhasil Diperbarui!"); 
+        alert("Sistem Berhasil Diperbarui & Disimpan secara permanen di browser ini."); 
     }
 
-    window.onload = () => { updateClock(); runSim(); };
+    window.onload = () => { 
+        updateClock(); 
+        runSim(); 
+        loadPersistedData(); // Jalankan load data saat refresh
+    };
 </script>
 </body>
 </html>
