@@ -31,7 +31,6 @@
         .tab-btn { padding: 8px 20px; border: none; background: none; font-weight: 700; cursor: pointer; color: #64748b; border-radius: 12px; transition: 0.3s; font-size: 0.85rem; }
         .tab-btn.active { color: #fff; background: var(--primary); box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4); }
 
-        /* Pojok Kanan Atas Kontrol */
         .top-info { position: absolute; right: 20px; display: flex; align-items: center; gap: 15px; color: #94a3b8; }
         .date-time { text-align: right; line-height: 1.2; font-size: 0.85rem; font-weight: 600; border-right: 1px solid var(--border); padding-right: 15px; }
         .nav-actions { display: flex; gap: 12px; align-items: center; }
@@ -170,7 +169,7 @@
     <div id="setpoint" class="page">
         <div class="card" style="justify-content: start; max-width: 500px; margin: auto;">
             <div class="card-header"><i class="fas fa-edit"></i> Global Setup</div>
-            <div class="set-group"><label>System Display Name</label><input type="text" id="titleInput" oninput="updateTitle(this.value)"></div>
+            <div class="set-group"><label>System Display Name</label><input type="text" id="titleInput" placeholder="Masukkan Nama Sistem..." oninput="updateTitle(this.value)"></div>
             <div class="set-group"><label>Change Dashboard Photo</label><input type="file" id="localImg" accept="image/*" onchange="previewFile()"></div>
             <button class="btn-action btn-save" onclick="saveAllSettings()"><i class="fas fa-save"></i> UPDATE SYSTEM</button>
             
@@ -190,6 +189,23 @@
     let logBuffer = [];
     let startTime = null;
     const VOLTAGE = 220.5;
+
+    // --- FUNGSI BARU: PREVIEW IMAGE ---
+    function previewFile() {
+        const preview = document.getElementById('displayImg');
+        const file = document.getElementById('localImg').files[0];
+        const reader = new FileReader();
+
+        reader.onloadend = function () {
+            preview.src = reader.result;
+        }
+
+        if (file) {
+            reader.readAsDataURL(file);
+        } else {
+            preview.src = "https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=800&q=80";
+        }
+    }
 
     function updateClock() {
         const now = new Date();
@@ -232,7 +248,6 @@
         const doc = new jsPDF();
         const sysTitle = document.querySelector('#mainTitle span').innerText;
 
-        // Header & Branding
         doc.setFillColor(99, 102, 241);
         doc.rect(0, 0, 210, 40, 'F');
         doc.setTextColor(255, 255, 255);
@@ -241,14 +256,12 @@
         doc.setFontSize(10);
         doc.text("INDUSTRIAL IOT DATA LOGGING REPORT", 14, 33);
 
-        // System Details
         doc.setTextColor(0, 0, 0);
         doc.setFontSize(11);
         doc.text(`Periode Log: ${startTime.toLocaleString('id-ID')} - ${new Date().toLocaleString('id-ID')}`, 14, 50);
         doc.text(`Total Konsumsi: ${totalKwh.toFixed(4)} kWh`, 14, 57);
         doc.text(`Status Sensor: Door (${document.getElementById('st_door').innerText}), Water (${document.getElementById('st_water').innerText})`, 14, 64);
 
-        // Data Table
         doc.autoTable({
             startY: 75,
             head: [['Waktu', 'Power (W)', 'Ampere (A)', 'In (°C)', 'Out (°C)', 'Status']],
@@ -276,26 +289,36 @@
         }
     }, 1000);
 
-    // Standard Functions
     function runSim() {
         let activeWatt = 0;
-        document.querySelectorAll('.relay-area input[type="checkbox"]').forEach(r => { if(r.checked) activeWatt += parseInt(r.dataset.watt); });
+        document.querySelectorAll('.relay-area input[type="checkbox"]').forEach(r => { 
+            if(r.checked) activeWatt += parseInt(r.getAttribute('data-watt')); 
+        });
         currentWatt = activeWatt;
         document.getElementById('disp_watt').innerHTML = `${currentWatt.toFixed(1)} <span class="energy-unit">W</span>`;
         document.getElementById('disp_curr').innerHTML = `${(currentWatt / VOLTAGE).toFixed(2)} <span class="energy-unit">A</span>`;
     }
-    function updateTitle(val) { document.querySelector('#mainTitle span').innerText = val || "POWER & IOT SYSTEM"; }
+
+    function updateTitle(val) { 
+        document.querySelector('#mainTitle span').innerText = val || "POWER & IOT SYSTEM"; 
+    }
+
     function openPage(id, e) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         e.currentTarget.classList.add('active');
     }
+
     function toggleFullScreen() {
         if (!document.fullscreenElement) document.documentElement.requestFullscreen();
         else document.exitFullscreen();
     }
-    function saveAllSettings() { alert("Settings Saved!"); }
+
+    function saveAllSettings() { 
+        alert("Sistem Berhasil Diperbarui!"); 
+    }
+
     window.onload = () => { updateClock(); runSim(); };
 </script>
 </body>
