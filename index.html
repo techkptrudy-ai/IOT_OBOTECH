@@ -27,9 +27,40 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body, html { height: 100vh; width: 100vw; overflow: hidden; font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-color); color: var(--text); }
 
-        nav.sidebar { height: 60px; display: flex; justify-content: center; align-items: center; gap: 30px; background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border); backdrop-filter: blur(15px); position: relative; }
-        .tab-btn { padding: 8px 20px; border: none; background: none; font-weight: 700; cursor: pointer; color: #64748b; border-radius: 12px; transition: 0.3s; font-size: 0.85rem; }
-        .tab-btn.active { color: #fff; background: var(--primary); box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4); }
+        /* NAV DIPERBARUI: Tombol ke kiri */
+        nav.sidebar { 
+            height: 60px; 
+            display: flex; 
+            justify-content: flex-start; /* Geser ke kiri */
+            align-items: center; 
+            padding-left: 20px;
+            gap: 10px; 
+            background: rgba(255,255,255,0.03); 
+            border-bottom: 1px solid var(--border); 
+            backdrop-filter: blur(15px); 
+            position: relative; 
+        }
+
+        /* Tombol lebih tegas (Semi-Rounded) */
+        .tab-btn { 
+            padding: 10px 24px; 
+            border: 1px solid rgba(255,255,255,0.1); 
+            background: rgba(255,255,255,0.05); 
+            font-weight: 700; 
+            cursor: pointer; 
+            color: #64748b; 
+            border-radius: 8px; /* Lebih tegas, tidak terlalu oval */
+            transition: 0.3s; 
+            font-size: 0.75rem; 
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .tab-btn.active { 
+            color: #fff; 
+            background: var(--primary); 
+            border-color: var(--primary);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); 
+        }
 
         .top-info { position: absolute; right: 20px; display: flex; align-items: center; gap: 15px; color: #94a3b8; }
         .date-time { text-align: right; line-height: 1.2; font-size: 0.85rem; font-weight: 600; border-right: 1px solid var(--border); padding-right: 15px; }
@@ -42,9 +73,23 @@
         .page { display: none; height: 100%; }
         .page.active { display: grid; }
 
-        #mainTitle { position: absolute; top: 25px; left: 35px; z-index: 10; font-size: 1.6rem; font-weight: 800; background: linear-gradient(to right, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: flex; align-items: center; gap: 15px; }
+        /* Judul IOT di bawah navigasi kiri */
+        #mainTitle { 
+            position: absolute; 
+            top: 15px; 
+            left: 25px; 
+            z-index: 10; 
+            font-size: 2.2rem; 
+            font-weight: 800; 
+            background: linear-gradient(to right, #fff, #94a3b8); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+        }
 
-        .led-log { width: 12px; height: 12px; border-radius: 50%; background: #334155; }
+        .led-log { width: 10px; height: 10px; border-radius: 50%; background: #334155; margin-top: 5px; }
         .led-active { 
             background: var(--success); 
             box-shadow: 0 0 10px var(--success);
@@ -54,7 +99,7 @@
 
         #dashboard.active {
             grid-template-columns: 1fr 1.6fr 1.4fr; grid-template-rows: 1fr 1fr;
-            gap: 15px; padding-top: 55px;
+            gap: 15px; padding-top: 70px; /* Ditambah agar tidak tertabrak judul */
             grid-template-areas: "temp energy photo" "input relay photo";
         }
 
@@ -72,7 +117,6 @@
 
         .relay-area { grid-area: relay; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .relay-card { background: rgba(255,255,255,0.02); padding: 10px 14px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); }
-        .relay-card i { font-size: 0.9rem; color: var(--primary); margin-right: 8px; }
         
         .temp-item { background: rgba(255,255,255,0.03); padding: 10px 15px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
         .temp-val { font-size: 1.3rem; font-weight: 800; color: var(--warning); }
@@ -84,7 +128,7 @@
         input:checked + .slider { background: var(--success); }
         input:checked + .slider:before { transform: translateX(18px); }
 
-        #setpoint.active { grid-template-columns: 1fr 1fr; gap: 20px; align-content: center; max-width: 1000px; margin: auto; }
+        #setpoint.active { grid-template-columns: 1fr 1fr; gap: 20px; align-content: center; max-width: 1000px; margin: auto; padding-top: 70px;}
         .set-group { margin-bottom: 15px; }
         .set-group label { display: block; font-size: 0.75rem; font-weight: 700; color: #94a3b8; margin-bottom: 5px; }
         .set-group input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border); padding: 10px; border-radius: 10px; color: #fff; }
@@ -115,7 +159,7 @@
 
 <div class="container">
     <h1 id="mainTitle">
-        <span>POWER & IOT SYSTEM</span>
+        <span>IOT</span>
         <div id="ledIndicator" class="led-log"></div>
     </h1>
     
@@ -190,33 +234,21 @@
     let startTime = null;
     const VOLTAGE = 220.5;
 
-    // --- FUNGSI DIPERBAIKI: PREVIEW & SIMPAN KE LOCALSTORAGE ---
     function previewFile() {
         const preview = document.getElementById('displayImg');
         const file = document.getElementById('localImg').files[0];
         const reader = new FileReader();
-
         reader.onloadend = function () {
             const base64String = reader.result;
             preview.src = base64String;
-            // Menyimpan string gambar ke browser (LocalStorage)
             localStorage.setItem('savedRudiImg', base64String);
         }
-
-        if (file) {
-            reader.readAsDataURL(file);
-        }
+        if (file) { reader.readAsDataURL(file); }
     }
 
-    // --- FUNGSI LOAD DATA SAAT BUKA HALAMAN ---
     function loadPersistedData() {
-        // Load Gambar
         const savedImg = localStorage.getItem('savedRudiImg');
-        if (savedImg) {
-            document.getElementById('displayImg').src = savedImg;
-        }
-
-        // Load Judul (Title)
+        if (savedImg) { document.getElementById('displayImg').src = savedImg; }
         const savedTitle = localStorage.getItem('savedRudiTitle');
         if (savedTitle) {
             document.querySelector('#mainTitle span').innerText = savedTitle;
@@ -225,9 +257,9 @@
     }
 
     function updateTitle(val) { 
-        const title = val || "POWER & IOT SYSTEM";
+        const title = val || "IOT";
         document.querySelector('#mainTitle span').innerText = title; 
-        localStorage.setItem('savedRudiTitle', title); // Auto-save title
+        localStorage.setItem('savedRudiTitle', title); 
     }
 
     function updateClock() {
@@ -250,19 +282,13 @@
             if(!isLogging) return;
             isLogging = false;
             led.classList.remove('led-active');
-            alert("Logging Berhenti. Gunakan tombol PDF di pojok kanan atas untuk download.");
+            alert("Logging Berhenti.");
         }
     }
 
     function handlePdfDownload() {
-        if (isLogging) {
-            alert("Harap Stop Logging terlebih dahulu sebelum mendownload!");
-            return;
-        }
-        if (logBuffer.length === 0) {
-            alert("Tidak ada data log untuk didownload.");
-            return;
-        }
+        if (isLogging) { alert("Harap Stop Logging terlebih dahulu!"); return; }
+        if (logBuffer.length === 0) { alert("Tidak ada data log."); return; }
         exportPDF();
     }
 
@@ -270,21 +296,11 @@
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
         const sysTitle = document.querySelector('#mainTitle span').innerText;
-
         doc.setFillColor(99, 102, 241);
         doc.rect(0, 0, 210, 40, 'F');
         doc.setTextColor(255, 255, 255);
         doc.setFontSize(22);
         doc.text(sysTitle, 14, 25);
-        doc.setFontSize(10);
-        doc.text("INDUSTRIAL IOT DATA LOGGING REPORT", 14, 33);
-
-        doc.setTextColor(0, 0, 0);
-        doc.setFontSize(11);
-        doc.text(`Periode Log: ${startTime.toLocaleString('id-ID')} - ${new Date().toLocaleString('id-ID')}`, 14, 50);
-        doc.text(`Total Konsumsi: ${totalKwh.toFixed(4)} kWh`, 14, 57);
-        doc.text(`Status Sensor: Door (${document.getElementById('st_door').innerText}), Water (${document.getElementById('st_water').innerText})`, 14, 64);
-
         doc.autoTable({
             startY: 75,
             head: [['Waktu', 'Power (W)', 'Ampere (A)', 'In (°C)', 'Out (°C)', 'Status']],
@@ -292,23 +308,19 @@
             headStyles: { fillColor: [60, 60, 60] },
             theme: 'grid'
         });
-
         doc.save(`LOG_${Date.now()}.pdf`);
     }
 
     setInterval(() => {
         if(currentWatt > 0) totalKwh += (currentWatt * (1/3600)) / 1000;
         document.getElementById('disp_kwh').innerHTML = `${totalKwh.toFixed(4)} <span class="energy-unit">kWh</span>`;
-        
         let tIn = (27 + Math.random() * 2).toFixed(1);
         let tOut = (31 + Math.random() * 2).toFixed(1);
         document.getElementById('disp_temp1').innerHTML = `${tIn} <small class="energy-unit">°C</small>`;
         document.getElementById('disp_temp2').innerHTML = `${tOut} <small class="energy-unit">°C</small>`;
-
         if(isLogging) {
             const time = new Date().toLocaleTimeString('id-ID');
-            const status = (tIn > 28.5) ? "HIGH TEMP" : "NORMAL";
-            logBuffer.push([time, currentWatt.toFixed(1), (currentWatt/VOLTAGE).toFixed(2), tIn, tOut, status]);
+            logBuffer.push([time, currentWatt.toFixed(1), (currentWatt/VOLTAGE).toFixed(2), tIn, tOut, "NORMAL"]);
         }
     }, 1000);
 
@@ -334,15 +346,9 @@
         else document.exitFullscreen();
     }
 
-    function saveAllSettings() { 
-        alert("Sistem Berhasil Diperbarui & Disimpan secara permanen di browser ini."); 
-    }
+    function saveAllSettings() { alert("Sistem Berhasil Diperbarui!"); }
 
-    window.onload = () => { 
-        updateClock(); 
-        runSim(); 
-        loadPersistedData(); // Jalankan load data saat refresh
-    };
+    window.onload = () => { updateClock(); runSim(); loadPersistedData(); };
 </script>
 </body>
 </html>
