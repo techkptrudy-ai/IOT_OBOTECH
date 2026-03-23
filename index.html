@@ -7,9 +7,7 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-
+    
     <style>
         :root {
             --bg-color: #0b0f1a; 
@@ -36,31 +34,25 @@
 
         #mainTitle { position: absolute; top: 25px; left: 35px; z-index: 10; font-size: 1.6rem; font-weight: 800; background: linear-gradient(to right, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
-        /* GRID LAYOUT (TETAP 3 KOLOM UTAMA) */
         #dashboard.active {
             grid-template-columns: 1fr 1.6fr 1.4fr;
             grid-template-rows: 1fr 1fr;
             gap: 15px; padding-top: 55px;
-            grid-template-areas: 
-                "temp energy photo"
-                "input relay photo";
+            grid-template-areas: "temp energy photo" "input relay photo";
         }
 
         .card { background: var(--card-bg); backdrop-filter: blur(20px); border-radius: 24px; padding: 18px; border: 1px solid var(--border); display: flex; flex-direction: column; }
         .card-header { font-size: 0.75rem; font-weight: 800; margin-bottom: 12px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1.5px; display: flex; align-items: center; gap: 8px; }
 
-        /* ENERGY MONITORING (NEW) */
         .energy-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; height: 100%; }
         .energy-item { background: rgba(255,255,255,0.03); border-radius: 15px; padding: 12px; border: 1px solid var(--border); display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .energy-label { font-size: 0.65rem; color: #94a3b8; font-weight: 600; margin-bottom: 4px; }
         .energy-val { font-size: 1.2rem; font-weight: 800; color: var(--info); }
         .energy-unit { font-size: 0.6rem; color: #64748b; margin-left: 2px; }
 
-        /* PHOTO AREA (Smooth Fade) */
         .photo-area { grid-area: photo; position: relative; overflow: hidden; border-radius: 30px; background: #000; }
         #displayImg { width: 100%; height: 100%; object-fit: cover; mask-image: linear-gradient(to left, rgba(0,0,0,1) 75%, rgba(0,0,0,0) 100%); -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,1) 75%, rgba(0,0,0,0) 100%); }
 
-        /* RELAY & INPUTS */
         .relay-area { grid-area: relay; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .relay-card { background: rgba(255,255,255,0.02); padding: 10px 14px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); }
         .relay-card i { font-size: 0.9rem; color: var(--primary); margin-right: 8px; }
@@ -68,7 +60,6 @@
         .temp-item { background: rgba(255,255,255,0.03); padding: 10px 15px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
         .temp-val { font-size: 1.3rem; font-weight: 800; color: var(--warning); }
 
-        /* TOGGLE SWITCH */
         .switch { position: relative; width: 38px; height: 20px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #334155; transition: .4s; border-radius: 20px; }
@@ -76,7 +67,6 @@
         input:checked + .slider { background: var(--success); }
         input:checked + .slider:before { transform: translateX(18px); }
 
-        /* SETPOINT PAGE */
         #setpoint.active { grid-template-columns: 1fr 1fr; gap: 20px; align-content: center; max-width: 900px; margin: auto; }
         .set-group { margin-bottom: 15px; }
         .set-group label { display: block; font-size: 0.75rem; font-weight: 700; color: #94a3b8; margin-bottom: 5px; }
@@ -95,23 +85,22 @@
     <h1 id="mainTitle">POWER & IOT SYSTEM</h1>
     
     <div id="dashboard" class="page active">
-        
         <div class="card" style="grid-area: temp;">
             <div class="card-header"><i class="fas fa-thermometer-half"></i> Temperature Nodes</div>
-            <div class="temp-item"><span><i class="fas fa-home"></i> In</span><span class="temp-val">28.5<small class="energy-unit">°C</small></span></div>
-            <div class="temp-item"><span><i class="fas fa-cloud-sun"></i> Out</span><span class="temp-val">31.2<small class="energy-unit">°C</small></span></div>
-            <div class="temp-item"><span><i class="fas fa-cogs"></i> Eng</span><span class="temp-val">45.0<small class="energy-unit">°C</small></span></div>
+            <div class="temp-item"><span><i class="fas fa-home"></i> In</span><span class="temp-val" id="disp_temp1">28.5<small class="energy-unit">°C</small></span></div>
+            <div class="temp-item"><span><i class="fas fa-cloud-sun"></i> Out</span><span class="temp-val" id="disp_temp2">31.2<small class="energy-unit">°C</small></span></div>
+            <div class="temp-item"><span><i class="fas fa-cogs"></i> Eng</span><span class="temp-val" id="disp_temp3">45.0<small class="energy-unit">°C</small></span></div>
         </div>
 
         <div class="card" style="grid-area: energy;">
             <div class="card-header"><i class="fas fa-bolt"></i> Electrical Parameters</div>
             <div class="energy-grid">
-                <div class="energy-item"><span class="energy-label">VOLTAGE</span><div class="energy-val">220.5<span class="energy-unit">V</span></div></div>
-                <div class="energy-item"><span class="energy-label">CURRENT</span><div class="energy-val" style="color:var(--success)">2.45<span class="energy-unit">A</span></div></div>
-                <div class="energy-item"><span class="energy-label">POWER</span><div class="energy-val" style="color:var(--warning)">540.2<span class="energy-unit">W</span></div></div>
-                <div class="energy-item"><span class="energy-label">ENERGY</span><div class="energy-val">12.4<span class="energy-unit">kWh</span></div></div>
-                <div class="energy-item"><span class="energy-label">FREQ</span><div class="energy-val">50.0<span class="energy-unit">Hz</span></div></div>
-                <div class="energy-item"><span class="energy-label">COS PHI</span><div class="energy-val">0.98<span class="energy-unit">PF</span></div></div>
+                <div class="energy-item"><span class="energy-label">VOLTAGE</span><div class="energy-val" id="disp_volt">220.0<span class="energy-unit">V</span></div></div>
+                <div class="energy-item"><span class="energy-label">CURRENT</span><div class="energy-val" id="disp_curr" style="color:var(--success)">0.00<span class="energy-unit">A</span></div></div>
+                <div class="energy-item"><span class="energy-label">POWER</span><div class="energy-val" id="disp_watt" style="color:var(--warning)">0.0<span class="energy-unit">W</span></div></div>
+                <div class="energy-item"><span class="energy-label">ENERGY</span><div class="energy-val" id="disp_kwh">0.000<span class="energy-unit">kWh</span></div></div>
+                <div class="energy-item"><span class="energy-label">FREQ</span><div class="energy-val" id="disp_freq">50.0<span class="energy-unit">Hz</span></div></div>
+                <div class="energy-item"><span class="energy-label">COS PHI</span><div class="energy-val" id="disp_pf">0.00<span class="energy-unit">PF</span></div></div>
             </div>
         </div>
 
@@ -128,21 +117,20 @@
         <div class="card" style="grid-area: relay;">
             <div class="card-header"><i class="fas fa-toggle-on"></i> Power Distribution</div>
             <div class="relay-area">
-                <div class="relay-card"><span><i class="fas fa-lightbulb"></i> Lampu 1</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
-                <div class="relay-card"><span><i class="fas fa-lightbulb"></i> Lampu 2</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
-                <div class="relay-card"><span><i class="fas fa-snowflake"></i> AC Unit</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
-                <div class="relay-card"><span><i class="fas fa-fan"></i> Exhaust</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
-                <div class="relay-card"><span><i class="fas fa-tint"></i> Pump</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
-                <div class="relay-card"><span><i class="fas fa-desktop"></i> Workstation</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
-                <div class="relay-card"><span><i class="fas fa-plug"></i> Socket 7</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
-                <div class="relay-card"><span><i class="fas fa-plug"></i> Socket 8</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+                <div class="relay-card"><span><i class="fas fa-lightbulb"></i> Lampu 1</span><label class="switch"><input type="checkbox" onchange="runSim()" data-watt="40"><span class="slider"></span></label></div>
+                <div class="relay-card"><span><i class="fas fa-lightbulb"></i> Lampu 2</span><label class="switch"><input type="checkbox" onchange="runSim()" data-watt="60"><span class="slider"></span></label></div>
+                <div class="relay-card"><span><i class="fas fa-snowflake"></i> AC Unit</span><label class="switch"><input type="checkbox" onchange="runSim()" data-watt="850"><span class="slider"></span></label></div>
+                <div class="relay-card"><span><i class="fas fa-fan"></i> Exhaust</span><label class="switch"><input type="checkbox" onchange="runSim()" data-watt="150"><span class="slider"></span></label></div>
+                <div class="relay-card"><span><i class="fas fa-tint"></i> Pump</span><label class="switch"><input type="checkbox" onchange="runSim()" data-watt="250"><span class="slider"></span></label></div>
+                <div class="relay-card"><span><i class="fas fa-desktop"></i> Workstation</span><label class="switch"><input type="checkbox" onchange="runSim()" data-watt="350"><span class="slider"></span></label></div>
+                <div class="relay-card"><span><i class="fas fa-plug"></i> Socket 7</span><label class="switch"><input type="checkbox" onchange="runSim()" data-watt="100"><span class="slider"></span></label></div>
+                <div class="relay-card"><span><i class="fas fa-plug"></i> Socket 8</span><label class="switch"><input type="checkbox" onchange="runSim()" data-watt="100"><span class="slider"></span></label></div>
             </div>
         </div>
 
         <div class="photo-area">
             <img id="displayImg" src="https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=800&q=80">
         </div>
-
     </div>
 
     <div id="setpoint" class="page">
@@ -152,21 +140,58 @@
             <div class="set-group"><label>Change Dashboard Photo</label><input type="file" id="localImg" accept="image/*" onchange="previewFile()"></div>
             <button class="btn-save" onclick="saveAllSettings()">UPDATE SYSTEM</button>
         </div>
-        <div class="card" style="justify-content: start;">
-            <div class="card-header"><i class="fas fa-file-download"></i> Data Logging</div>
-            <p style="font-size: 0.8rem; color:#64748b; margin-bottom: 20px;">Download energy & sensor historical data.</p>
-            <button class="btn-save" style="background:#334155;" onclick="alert('Exporting PDF...')">GENERATE PDF REPORT</button>
-        </div>
     </div>
 </div>
 
 <script>
+    // GLOBAL SIMULATION VARIABLES
+    let totalKwh = 0;
+    let currentWatt = 0;
+    const VOLTAGE = 220.5;
+
     function openPage(pageId) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(pageId).classList.add('active');
         event.currentTarget.classList.add('active');
     }
+
+    // LOGIC SIMULATOR ENGINE
+    function runSim() {
+        let activeWatt = 0;
+        // Ambil semua relay yang dicentang
+        document.querySelectorAll('.relay-area input[type="checkbox"]').forEach(relay => {
+            if(relay.checked) {
+                activeWatt += parseInt(relay.getAttribute('data-watt'));
+            }
+        });
+
+        // Update Watt & Amphere (I = P / V)
+        currentWatt = activeWatt;
+        let ampere = currentWatt / VOLTAGE;
+        let pf = currentWatt > 0 ? 0.98 : 0.00;
+
+        // Tampilkan ke UI dengan animasi angka sedikit fluktuatif agar nyata
+        document.getElementById('disp_watt').innerHTML = `${currentWatt.toFixed(1)} <span class="energy-unit">W</span>`;
+        document.getElementById('disp_curr').innerHTML = `${ampere.toFixed(2)} <span class="energy-unit">A</span>`;
+        document.getElementById('disp_pf').innerHTML = `${pf.toFixed(2)} <span class="energy-unit">PF</span>`;
+        document.getElementById('disp_volt').innerHTML = `${(VOLTAGE + (Math.random() * 0.5)).toFixed(1)} <span class="energy-unit">V</span>`;
+    }
+
+    // Fungsi Akumulasi kWh (Berjalan setiap detik)
+    setInterval(() => {
+        if(currentWatt > 0) {
+            // kWh = (Watt * hours) / 1000. 
+            // Untuk simulasi cepat: tiap detik dianggap beban berjalan 1 menit (x60 kecepatan)
+            let addition = (currentWatt * (1/3600)) / 1000; 
+            totalKwh += addition;
+            document.getElementById('disp_kwh').innerHTML = `${totalKwh.toFixed(4)} <span class="energy-unit">kWh</span>`;
+        }
+        
+        // Simulasi fluktuasi suhu sedikit
+        let t1 = 28 + Math.random();
+        document.getElementById('disp_temp1').innerHTML = `${t1.toFixed(1)} <small class="energy-unit">°C</small>`;
+    }, 1000);
 
     function updateTitle(val) { document.getElementById('mainTitle').innerText = val || "POWER & IOT SYSTEM"; }
 
@@ -189,7 +214,11 @@
         const savedImg = localStorage.getItem('rudi_iot_bg');
         const savedTitle = localStorage.getItem('rudi_iot_title');
         if(savedImg) document.getElementById('displayImg').src = savedImg;
-        if(savedTitle) { document.getElementById('mainTitle').innerText = savedTitle; document.getElementById('titleInput').value = savedTitle; }
+        if(savedTitle) { 
+            document.getElementById('mainTitle').innerText = savedTitle; 
+            document.getElementById('titleInput').value = savedTitle; 
+        }
+        runSim(); // Jalankan initial state
     };
 </script>
 </body>
