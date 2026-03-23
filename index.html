@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IoT Ultra Dashboard - Rudi Pro</title>
+    <title>IoT Energy Dashboard - Rudi Pro</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -13,186 +13,129 @@
     <style>
         :root {
             --bg-color: #0b0f1a; 
-            --card-bg: rgba(23, 32, 53, 0.8);
+            --card-bg: rgba(23, 32, 53, 0.85);
             --primary: #6366f1;
-            --secondary: #a855f7;
             --success: #10b981;
             --danger: #f43f5e;
+            --warning: #f59e0b;
+            --info: #0ea5e9;
             --text: #f8fafc;
-            --border: rgba(255, 255, 255, 0.1);
+            --border: rgba(255, 255, 255, 0.08);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        
-        body, html {
-            height: 100vh; width: 100vw;
-            overflow: hidden; 
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text);
-        }
+        body, html { height: 100vh; width: 100vw; overflow: hidden; font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-color); color: var(--text); }
 
-        /* Navigasi */
-        nav.sidebar {
-            height: 60px;
-            display: flex; justify-content: center; align-items: center; gap: 30px;
-            background: rgba(255,255,255,0.03);
-            border-bottom: 1px solid var(--border);
-            backdrop-filter: blur(15px);
-        }
-
-        .tab-btn {
-            padding: 8px 20px; border: none; background: none;
-            font-weight: 700; cursor: pointer; color: #64748b;
-            border-radius: 12px; transition: 0.3s; font-size: 0.9rem;
-        }
-
+        nav.sidebar { height: 60px; display: flex; justify-content: center; align-items: center; gap: 30px; background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border); backdrop-filter: blur(15px); }
+        .tab-btn { padding: 8px 20px; border: none; background: none; font-weight: 700; cursor: pointer; color: #64748b; border-radius: 12px; transition: 0.3s; font-size: 0.85rem; }
         .tab-btn.active { color: #fff; background: var(--primary); box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4); }
 
         .container { height: calc(100vh - 60px); padding: 20px; position: relative; }
         .page { display: none; height: 100%; }
         .page.active { display: grid; }
 
-        /* JUDUL DINAMIS */
-        #mainTitle {
-            position: absolute; top: 30px; left: 35px; z-index: 10;
-            font-size: 1.8rem; font-weight: 800; letter-spacing: -1px;
-            background: linear-gradient(to right, #fff, #94a3b8);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
+        #mainTitle { position: absolute; top: 25px; left: 35px; z-index: 10; font-size: 1.6rem; font-weight: 800; background: linear-gradient(to right, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
-        /* GRID DASHBOARD UTAMA (TETAP SAMA) */
+        /* GRID LAYOUT (TETAP 3 KOLOM UTAMA) */
         #dashboard.active {
-            grid-template-columns: 1.1fr 1.3fr 1.6fr;
+            grid-template-columns: 1fr 1.6fr 1.4fr;
             grid-template-rows: 1fr 1fr;
-            gap: 20px; padding-top: 60px;
+            gap: 15px; padding-top: 55px;
             grid-template-areas: 
-                "temp relay photo"
+                "temp energy photo"
                 "input relay photo";
         }
 
-        .card {
-            background: var(--card-bg); backdrop-filter: blur(20px);
-            border-radius: 28px; padding: 22px;
-            border: 1px solid var(--border);
-            display: flex; flex-direction: column; justify-content: center;
-        }
+        .card { background: var(--card-bg); backdrop-filter: blur(20px); border-radius: 24px; padding: 18px; border: 1px solid var(--border); display: flex; flex-direction: column; }
+        .card-header { font-size: 0.75rem; font-weight: 800; margin-bottom: 12px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1.5px; display: flex; align-items: center; gap: 8px; }
 
-        .card-header {
-            font-size: 0.8rem; font-weight: 800; margin-bottom: 15px;
-            color: #94a3b8; text-transform: uppercase; letter-spacing: 2px;
-            display: flex; align-items: center; gap: 10px;
-        }
+        /* ENERGY MONITORING (NEW) */
+        .energy-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; height: 100%; }
+        .energy-item { background: rgba(255,255,255,0.03); border-radius: 15px; padding: 12px; border: 1px solid var(--border); display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .energy-label { font-size: 0.65rem; color: #94a3b8; font-weight: 600; margin-bottom: 4px; }
+        .energy-val { font-size: 1.2rem; font-weight: 800; color: var(--info); }
+        .energy-unit { font-size: 0.6rem; color: #64748b; margin-left: 2px; }
 
-        /* PHOTO AREA (Smooth Fade out) */
-        .photo-area {
-            grid-area: photo; position: relative; overflow: hidden; border-radius: 35px; background: #000;
-        }
-        #displayImg {
-            width: 100%; height: 100%; object-fit: cover;
-            -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,1) 75%, rgba(0,0,0,0) 100%);
-            mask-image: linear-gradient(to left, rgba(0,0,0,1) 75%, rgba(0,0,0,0) 100%);
-        }
+        /* PHOTO AREA (Smooth Fade) */
+        .photo-area { grid-area: photo; position: relative; overflow: hidden; border-radius: 30px; background: #000; }
+        #displayImg { width: 100%; height: 100%; object-fit: cover; mask-image: linear-gradient(to left, rgba(0,0,0,1) 75%, rgba(0,0,0,0) 100%); -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,1) 75%, rgba(0,0,0,0) 100%); }
 
-        /* SENSOR & RELAY & INPUT (Tampilan dashboard dipertahankan) */
-        .temp-item { 
-            background: rgba(255,255,255,0.03); padding: 15px; border-radius: 18px; 
-            display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
-        }
-        .temp-val { font-size: 1.6rem; font-weight: 800; color: var(--primary); }
-
-        .relay-area { grid-area: relay; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .relay-card { 
-            background: rgba(255,255,255,0.02); padding: 15px; border-radius: 18px;
-            display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border);
-        }
-
-        .in-box { 
-            background: rgba(16, 185, 129, 0.05); padding: 12px; border-radius: 15px; 
-            text-align: center; border: 1px solid rgba(16, 185, 129, 0.1);
-        }
-        .st-val { font-weight: 800; color: var(--success); font-size: 0.9rem; }
+        /* RELAY & INPUTS */
+        .relay-area { grid-area: relay; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .relay-card { background: rgba(255,255,255,0.02); padding: 10px 14px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); }
+        .relay-card i { font-size: 0.9rem; color: var(--primary); margin-right: 8px; }
+        
+        .temp-item { background: rgba(255,255,255,0.03); padding: 10px 15px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .temp-val { font-size: 1.3rem; font-weight: 800; color: var(--warning); }
 
         /* TOGGLE SWITCH */
-        .switch { position: relative; width: 42px; height: 22px; }
+        .switch { position: relative; width: 38px; height: 20px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #334155; transition: .4s; border-radius: 20px; }
-        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background: white; transition: .4s; border-radius: 50%; }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background: white; transition: .4s; border-radius: 50%; }
         input:checked + .slider { background: var(--success); }
-        input:checked + .slider:before { transform: translateX(20px); }
+        input:checked + .slider:before { transform: translateX(18px); }
 
-        /* HALAMAN SETPOINT (DIPERBAIKI) */
-        #setpoint.active {
-            grid-template-columns: 1fr 1fr; gap: 30px; align-content: center; max-width: 900px; margin: auto;
-        }
-        .set-group { margin-bottom: 20px; }
-        .set-group label { display: block; font-size: 0.8rem; font-weight: 700; color: #94a3b8; margin-bottom: 8px; }
-        .set-group input { 
-            width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border); 
-            padding: 12px; border-radius: 12px; color: #fff; outline: none; transition: 0.3s;
-        }
-        .set-group input:focus { border-color: var(--primary); background: rgba(255,255,255,0.1); }
-
-        /* Custom File Upload Button */
-        .file-upload {
-            position: relative; display: inline-block; width: 100%;
-        }
-        .file-upload input { position: absolute; left: 0; top: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
-        .file-btn { 
-            background: rgba(255,255,255,0.05); border: 2px dashed var(--border); 
-            padding: 20px; border-radius: 15px; text-align: center; display: block; transition: 0.3s;
-        }
-        .file-upload:hover .file-btn { border-color: var(--primary); background: rgba(99, 102, 241, 0.05); }
-
-        .btn-save {
-            background: var(--primary); color: white; border: none; padding: 15px;
-            border-radius: 15px; cursor: pointer; font-weight: 700; width: 100%; 
-            margin-top: 20px; box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2); transition: 0.3s;
-        }
-        .btn-save:hover { transform: translateY(-3px); box-shadow: 0 15px 25px rgba(99, 102, 241, 0.3); }
-
+        /* SETPOINT PAGE */
+        #setpoint.active { grid-template-columns: 1fr 1fr; gap: 20px; align-content: center; max-width: 900px; margin: auto; }
+        .set-group { margin-bottom: 15px; }
+        .set-group label { display: block; font-size: 0.75rem; font-weight: 700; color: #94a3b8; margin-bottom: 5px; }
+        .set-group input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border); padding: 10px; border-radius: 10px; color: #fff; }
+        .btn-save { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 12px; cursor: pointer; font-weight: 700; width: 100%; margin-top: 15px; transition: 0.3s; }
     </style>
 </head>
 <body>
 
 <nav class="sidebar">
-    <button class="tab-btn active" onclick="openPage('dashboard')">MONITORING</button>
-    <button class="tab-btn" onclick="openPage('setpoint')">SYSTEM SETUP</button>
+    <button class="tab-btn active" onclick="openPage('dashboard')">MAIN MONITORING</button>
+    <button class="tab-btn" onclick="openPage('setpoint')">SYSTEM CONFIG</button>
 </nav>
 
 <div class="container">
+    <h1 id="mainTitle">POWER & IOT SYSTEM</h1>
     
-    <h1 id="mainTitle">SMART IOT SYSTEM</h1>
     <div id="dashboard" class="page active">
         
         <div class="card" style="grid-area: temp;">
-            <div class="card-header"><i class="fas fa-microchip"></i> Node Sensors</div>
-            <div class="temp-item"><span>Indoor</span><span class="temp-val">28.5°C</span></div>
-            <div class="temp-item"><span>Outdoor</span><span class="temp-val">31.2°C</span></div>
-            <div class="temp-item"><span>Machine</span><span class="temp-val">45.0°C</span></div>
+            <div class="card-header"><i class="fas fa-thermometer-half"></i> Temperature Nodes</div>
+            <div class="temp-item"><span><i class="fas fa-home"></i> In</span><span class="temp-val">28.5<small class="energy-unit">°C</small></span></div>
+            <div class="temp-item"><span><i class="fas fa-cloud-sun"></i> Out</span><span class="temp-val">31.2<small class="energy-unit">°C</small></span></div>
+            <div class="temp-item"><span><i class="fas fa-cogs"></i> Eng</span><span class="temp-val">45.0<small class="energy-unit">°C</small></span></div>
+        </div>
+
+        <div class="card" style="grid-area: energy;">
+            <div class="card-header"><i class="fas fa-bolt"></i> Electrical Parameters</div>
+            <div class="energy-grid">
+                <div class="energy-item"><span class="energy-label">VOLTAGE</span><div class="energy-val">220.5<span class="energy-unit">V</span></div></div>
+                <div class="energy-item"><span class="energy-label">CURRENT</span><div class="energy-val" style="color:var(--success)">2.45<span class="energy-unit">A</span></div></div>
+                <div class="energy-item"><span class="energy-label">POWER</span><div class="energy-val" style="color:var(--warning)">540.2<span class="energy-unit">W</span></div></div>
+                <div class="energy-item"><span class="energy-label">ENERGY</span><div class="energy-val">12.4<span class="energy-unit">kWh</span></div></div>
+                <div class="energy-item"><span class="energy-label">FREQ</span><div class="energy-val">50.0<span class="energy-unit">Hz</span></div></div>
+                <div class="energy-item"><span class="energy-label">COS PHI</span><div class="energy-val">0.98<span class="energy-unit">PF</span></div></div>
+            </div>
         </div>
 
         <div class="card" style="grid-area: input;">
-            <div class="card-header"><i class="fas fa-shield-virus"></i> Security Matrix</div>
-            <div class="relay-area" style="grid-template-columns: 1fr 1fr;">
-                <div class="in-box">Door<br><span class="st-val">CLOSED</span></div>
-                <div class="in-box">Water<br><span class="st-val" style="color:var(--danger)">LOW</span></div>
-                <div class="in-box">Gas<br><span class="st-val">SAFE</span></div>
-                <div class="in-box">Alarm<br><span class="st-val">READY</span></div>
+            <div class="card-header"><i class="fas fa-shield-alt"></i> Security Matrix</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <div class="energy-item" style="padding:8px;"><small>Door</small><b style="color:var(--success)">CLOSED</b></div>
+                <div class="energy-item" style="padding:8px;"><small>Water</small><b style="color:var(--danger)">LOW</b></div>
+                <div class="energy-item" style="padding:8px;"><small>Gas</small><b style="color:var(--success)">SAFE</b></div>
+                <div class="energy-item" style="padding:8px;"><small>Alarm</small><b>READY</b></div>
             </div>
         </div>
 
         <div class="card" style="grid-area: relay;">
-            <div class="card-header"><i class="fas fa-stream"></i> Power Distribution</div>
+            <div class="card-header"><i class="fas fa-toggle-on"></i> Power Distribution</div>
             <div class="relay-area">
-                <div class="relay-card"><span>Lampu 1</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
-                <div class="relay-card"><span>Lampu 2</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
-                <div class="relay-card"><span>AC Room</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
-                <div class="relay-card"><span>Exhaust</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
-                <div class="relay-card"><span>Water Pump</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
-                <div class="relay-card"><span>Smart TV</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
-                <div class="relay-card"><span>Relay 7</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
-                <div class="relay-card"><span>Relay 8</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+                <div class="relay-card"><span><i class="fas fa-lightbulb"></i> Lampu 1</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+                <div class="relay-card"><span><i class="fas fa-lightbulb"></i> Lampu 2</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+                <div class="relay-card"><span><i class="fas fa-snowflake"></i> AC Unit</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+                <div class="relay-card"><span><i class="fas fa-fan"></i> Exhaust</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+                <div class="relay-card"><span><i class="fas fa-tint"></i> Pump</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+                <div class="relay-card"><span><i class="fas fa-desktop"></i> Workstation</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+                <div class="relay-card"><span><i class="fas fa-plug"></i> Socket 7</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+                <div class="relay-card"><span><i class="fas fa-plug"></i> Socket 8</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
             </div>
         </div>
 
@@ -204,35 +147,17 @@
 
     <div id="setpoint" class="page">
         <div class="card" style="justify-content: start;">
-            <div class="card-header"><i class="fas fa-cog"></i> General Settings</div>
-            
-            <div class="set-group">
-                <label>Judul Dashboard Utama</label>
-                <input type="text" id="titleInput" placeholder="Masukkan Nama Sistem..." oninput="updateTitle(this.value)">
-            </div>
-
-            <div class="set-group">
-                <label>Upload Gambar Dashboard (Local)</label>
-                <div class="file-upload">
-                    <span class="file-btn" id="fileName"><i class="fas fa-cloud-upload-alt"></i> Klik untuk pilih foto</span>
-                    <input type="file" id="localImg" accept="image/*" onchange="previewFile()">
-                </div>
-            </div>
-            
-            <button class="btn-save" onclick="saveAllSettings()"><i class="fas fa-check-circle"></i> SIMPAN PERUBAHAN</button>
+            <div class="card-header"><i class="fas fa-edit"></i> Global Setup</div>
+            <div class="set-group"><label>System Display Name</label><input type="text" id="titleInput" oninput="updateTitle(this.value)"></div>
+            <div class="set-group"><label>Change Dashboard Photo</label><input type="file" id="localImg" accept="image/*" onchange="previewFile()"></div>
+            <button class="btn-save" onclick="saveAllSettings()">UPDATE SYSTEM</button>
         </div>
-
         <div class="card" style="justify-content: start;">
-            <div class="card-header"><i class="fas fa-database"></i> System Log</div>
-            <p style="color:#64748b; font-size: 0.85rem; margin-bottom: 20px;">Download data aktivitas sensor dan relay dalam format PDF.</p>
-            <button class="btn-save" style="background:#334155;" onclick="alert('PDF Generated!')">DOWNLOAD PDF REPORT</button>
-            
-            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border);">
-                <small style="color:#475569">Device ID: RUDI-IOT-2026<br>Status: Connected to Server</small>
-            </div>
+            <div class="card-header"><i class="fas fa-file-download"></i> Data Logging</div>
+            <p style="font-size: 0.8rem; color:#64748b; margin-bottom: 20px;">Download energy & sensor historical data.</p>
+            <button class="btn-save" style="background:#334155;" onclick="alert('Exporting PDF...')">GENERATE PDF REPORT</button>
         </div>
     </div>
-
 </div>
 
 <script>
@@ -243,53 +168,29 @@
         event.currentTarget.classList.add('active');
     }
 
-    function updateTitle(val) {
-        document.getElementById('mainTitle').innerText = val || "SMART IOT SYSTEM";
-    }
-
-    function previewFile() {
-        const nameDisplay = document.getElementById('fileName');
-        const file = document.getElementById('localImg').files[0];
-        if(file) nameDisplay.innerText = "File Terpilih: " + file.name;
-    }
+    function updateTitle(val) { document.getElementById('mainTitle').innerText = val || "POWER & IOT SYSTEM"; }
 
     function saveAllSettings() {
         const titleVal = document.getElementById('titleInput').value;
         const file = document.getElementById('localImg').files[0];
-
-        // Simpan Judul
         localStorage.setItem('rudi_iot_title', titleVal);
-
-        // Simpan Gambar
         if(file) {
             const reader = new FileReader();
-            reader.onload = function(e) {
-                const base64 = e.target.result;
-                document.getElementById('displayImg').src = base64;
-                localStorage.setItem('rudi_iot_bg', base64);
-                finalizeSave();
-            }
+            reader.onload = (e) => { 
+                localStorage.setItem('rudi_iot_bg', e.target.result); 
+                document.getElementById('displayImg').src = e.target.result;
+                alert("Settings Saved!"); openPage('dashboard');
+            };
             reader.readAsDataURL(file);
-        } else {
-            finalizeSave();
-        }
-    }
-
-    function finalizeSave() {
-        alert("Pengaturan Berhasil Disimpan!");
-        openPage('dashboard');
+        } else { alert("Settings Saved!"); openPage('dashboard'); }
     }
 
     window.onload = () => {
         const savedImg = localStorage.getItem('rudi_iot_bg');
         const savedTitle = localStorage.getItem('rudi_iot_title');
-        
         if(savedImg) document.getElementById('displayImg').src = savedImg;
-        if(savedTitle) {
-            document.getElementById('mainTitle').innerText = savedTitle;
-            document.getElementById('titleInput').value = savedTitle;
-        }
-    }
+        if(savedTitle) { document.getElementById('mainTitle').innerText = savedTitle; document.getElementById('titleInput').value = savedTitle; }
+    };
 </script>
 </body>
 </html>
